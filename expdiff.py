@@ -5,6 +5,8 @@ import matplotlib.axes
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import numpy as np
+import os.path
+from os import path
 
 def func(x, D, p):
 	return p*np.exp(-D*x)
@@ -22,11 +24,17 @@ gamma = 4.258
 LD = 3
 BD = 55
 gradient, experiment, x = [], [], []
-NAME_list= 'il20_293K_D_2'
+print('=======================================================================')
+print('THIS IS DIFFUSION COEFFICIENT CALCULATING PROGRAM')
+print('PLEASE, PUT THIS PROGRAM TO FOLDER WITH DATA, THAT YOU WANT TO HANDLE')
+print('ACCEPTIBLE DATA FORMAT: il20_[temperature]K_D_[number_of_peak]')
+print('FOR EXAMPLE: il20_293K_D_1')
+print('graph and text file with diffusion valiues  will be in =output= folder')
+print('=======================================================================')
+temperature=input(' temperature (K): ')
+number_of_peak=input(' Number of peak (1,2 or 3): ')
+NAME_list= str('il20_')+str(temperature)+str('K_D_')+str(number_of_peak)
 NAME = str(NAME_list)
-png = '.png'
-NAME_png_list = NAME_list+png
-NAME_png = str(NAME_png_list)
 with open(NAME, 'r') as data:
 	data_new = data.readlines()[26:74] 
 	i =0
@@ -189,49 +197,33 @@ else:
 	perr3p=perr[1]
 	D3, p3 = popt
 
-print(D1,D2,D3, 'D ',p1,p2,p3,'p')
-print(perr1, perr2, perr3, 'perr')
+D1print=D1*10**-11
+D2print=D2*10**-11
+D3print=D3*10**-11
+perr1print=perr1*10**-11
+perr2print=perr2*10**-11
+perr3print=perr3*10**-11
+print(D1print,D2print,D3print, 'D ',p1,p2,p3,'p')
+print(perr1print, perr2print, perr3print, 'perr')
 plt.ylabel("experiment") #Обозначем оси
 plt.semilogy()
 plt.xlabel('x')
 plt.grid()
 
+if path.exists('output')==False:
+	os.mkdir('output')
+save_path='output/'
 format1=str('data.txt')
 file_name = NAME+format1
-file1 = open(file_name,"w") 
-file1.write(str(D1))
-file1.write(' D1 +-')
-file1.write(str(perr1))
-file1.write(' ,\n')
-file1.write(str(p1))
-file1.write(' p1 +-')
-file1.write(str(perr1p))
+file1 = open(save_path+file_name,"w") 
+file1.write(str(D1print)+str(' +- ')+str(perr1print)+str(' D1\n'))
+file1.write(str(p1)+str(' +- ')+str(perr1p)+str(' p1\n'))
 file1.write('\n')
-file1.write(str(D2))
-file1.write(' D2 +-')
-file1.write(str(perr2))
-file1.write(' ,\n')
-file1.write(str(p2))
-file1.write(' p2 +- ')
-file1.write(str(perr2p))
+file1.write(str(D2print)+str(' +- ')+str(perr2print)+str(' D2\n'))
+file1.write(str(p2)+str(' +- ')+str(perr2p)+str(' p2\n'))
 file1.write('\n')
-file1.write(str(D3))
-file1.write(' D3 +-')
-file1.write(str(perr3))
-file1.write(' ,\n')
-file1.write(str(p3))
-file1.write(' p3 +-')
-file1.write(str(perr3p))
-file1.write('\n \n \n')
-
-i=0
-while i<len(experiment):
-	file1.write(str(x[i]))
-	file1.write(' ')
-	file1.write(str(experiment[i]))
-	file1.write('\n')
-	i+=1
-file1.close()
+file1.write(str(D3print)+str(' +- ')+str(perr3print)+str(' D3\n'))
+file1.write(str(p3)+str(' +- ')+str(perr3p)+str(' p3\n'))
 
 plt.scatter(x, experiment, s=10, color='black') #Выводим массив точек на график
 plt.scatter(x_new, exp_new, s=10, color='blue')
@@ -255,8 +247,6 @@ popt=D3, p3
 plt.plot(x_new3, func3(x_new3, *popt), label='3')
 plt.title(NAME_list)
 plt.legend(loc='best')
-plt.savefig(NAME_png)
-
+plt.savefig(save_path+NAME_list+'.svg', format='svg')
 #gradient = np.arange(0, 180, 1)  #делаем функцию гладкой
 #plt.plot(gradient, experiment) #Рисуем гладкую аппроксимирующую функцию
-plt.show()
