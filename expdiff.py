@@ -27,13 +27,14 @@ gradient, experiment, x = [], [], []
 print('=======================================================================')
 print('THIS IS DIFFUSION COEFFICIENT CALCULATING PROGRAM')
 print('PLEASE, PUT THIS PROGRAM TO FOLDER WITH DATA, THAT YOU WANT TO HANDLE')
-print('ACCEPTIBLE DATA FORMAT: il20_[temperature]K_D_[number_of_peak]')
+print('ACCEPTIBLE DATA FORMAT: il[concenctration]_[temperature]K_D_[number_of_peak]')
 print('FOR EXAMPLE: il20_293K_D_1')
 print('graph and text file with diffusion valiues  will be in =output= folder')
 print('=======================================================================')
-temperature=input(' temperature (K): ')
-number_of_peak=input(' Number of peak (1,2 or 3): ')
-NAME_list= str('il20_')+str(temperature)+str('K_D_')+str(number_of_peak)
+concenctration=input('concenctration(%): ')
+temperature=input('Temperature (K): ')
+number_of_peak=input('Number of peak (1,2 or 3): ')
+NAME_list= str('il')+str(concenctration)+str('_')+str(temperature)+str('K_D_')+str(number_of_peak)
 NAME = str(NAME_list)
 with open(NAME, 'r') as data:
 	data_new = data.readlines()[26:74] 
