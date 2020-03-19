@@ -24,37 +24,29 @@ gamma = 4.258
 LD = 3
 BD = 55
 gradient, experiment, x = [], [], []
+format1=str('_raw_data.txt')
+save_path='output/'
 print('=======================================================================')
 print('THIS IS DIFFUSION COEFFICIENT CALCULATING PROGRAM')
-print('PLEASE, PUT THIS PROGRAM TO FOLDER WITH DATA, THAT YOU WANT TO HANDLE')
+print('PUT THIS PROGRAM TO THE FOLDER WITH DATA, THAT YOU WANT TO HANDLE')
 print('ACCEPTIBLE DATA FORMAT: il[concenctration]_[temperature]K_D_[number_of_peak]')
 print('FOR EXAMPLE: il20_293K_D_1')
-print('graph and text file with diffusion valiues  will be in =output= folder')
+print('graph and text file with diffusion valiues  will be in "output" folder')
 print('=======================================================================')
 concenctration=input('concenctration(%): ')
 temperature=input('Temperature (K): ')
 number_of_peak=input('Number of peak (1,2 or 3): ')
 NAME_list= str('il')+str(concenctration)+str('_')+str(temperature)+str('K_D_')+str(number_of_peak)
-NAME = str(NAME_list)
-with open(NAME, 'r') as data:
-	data_new = data.readlines()[26:74] 
+file_name = NAME_list+format1
+print(file_name, ' file_name')
+with open(save_path+file_name, 'r') as data:
+	data_new = data.readlines() 
 	i =0
 	while i < len(data_new):
 		elements = data_new[i].strip().split('    ')
-		gradient.append(float(elements[1]))
-		experiment.append(float(elements[2]))
+		x.append(float(elements[0]))
+		experiment.append(float(elements[1]))
 		i += 1
-
-x=[]
-i=0
-while i<len(gradient):
-	x.append(((2.0*np.pi*gamma*gradient[i]*LD)**2*(BD - LD/3))/10**11)
-	i+=1
-m = np.amax(experiment)
-i = 0
-while i < len(experiment):
-	experiment[i] = experiment[i]/m
-	i+=1
 
 x_new = list(x)
 exp_new = list(experiment)	
@@ -80,7 +72,11 @@ while i<len(x_new):
 	popt_m.append(popt)
 	del(x_new[0])
 	del(exp_new[0])
+c=len(experiment)/2
+perr_m[:c]=[1]*c
+del(c)
 i = np.argmin(perr_m)
+#i=48-13	#APPROXIAMTION STEP ONE
 perr1=perr_m[i]
 perr1p = perr1_m[i]
 D1, p1 = popt_m[i]
@@ -101,7 +97,7 @@ while i<len(x):
 	i+=1
 i=0
 while i<len(x_new2) :
-	if exp_new2[i]<experiment[47]:
+	if exp_new2[i]<experiment[len(experiment)-1]:
 		del(exp_new2[i:])
 		del(x_new2[i:])
 	i+=1
@@ -126,7 +122,11 @@ while i<len(x_new2):
 	popt_m.append(popt)
 	del(x_new2[0])
 	del(exp_new2[0])
+c=len(experiment)/100
+perr_m[:c]=[1]*c
+del(c)
 count = np.argmin(perr_m)
+#count=len(perr_m)-25		#APPROXIAMTION STEP TWO
 perr2=perr_m[count]
 perr2p=perr1_m[count]
 D2, p2 = popt_m[count]
@@ -138,7 +138,7 @@ while i<len(x):
 	i+=1
 i=0
 while i<len(x_new2) :
-	if exp_new2[i]<experiment[47]:
+	if exp_new2[i]<experiment[len(experiment)-1]:
 		del(exp_new2[i:])
 		del(x_new2[i:])
 	i+=1
@@ -178,18 +178,6 @@ else:
 			print('Runtime')
 			if len(x_new3)<3:
 				print('approximation failed #3')
-				'''
-				x_new3 = list(x)
-				exp_new3 = list(experiment)
-				del(x_new3x_new3 = list(x)
-				exp_new3 = list(experiment)[(len(x_new3)-len(x_new)):])
-				del(exp_new3[(len(exp_new3)-len(x_new)):])
-				i=0
-				while i<len(x):
-					exp_new3[i]=exp_new3[i]-p1*np.exp(-D1*x[i])-p2*np.exp(-D2*x[i])
-					i+=1
-				popt, pcov = curve_fit(func3, x_new3, exp_new3) 
-				'''
 				break
 			del(x_new3[0])
 			del(exp_new3[0])
@@ -198,12 +186,12 @@ else:
 	perr3p=perr[1]
 	D3, p3 = popt
 
-D1print=D1*10**-11
-D2print=D2*10**-11
-D3print=D3*10**-11
-perr1print=perr1*10**-11
-perr2print=perr2*10**-11
-perr3print=perr3*10**-11
+D1print=D1*10**-12
+D2print=D2*10**-12
+D3print=D3*10**-12
+perr1print=perr1*10**-12
+perr2print=perr2*10**-12
+perr3print=perr3*10**-12
 print(D1print,D2print,D3print, 'D ',p1,p2,p3,'p')
 print(perr1print, perr2print, perr3print, 'perr')
 plt.ylabel("experiment") #Обозначем оси
@@ -213,9 +201,8 @@ plt.grid()
 
 if path.exists('output')==False:
 	os.mkdir('output')
-save_path='output/'
 format1=str('data.txt')
-file_name = NAME+format1
+file_name = NAME_list+format1
 file1 = open(save_path+file_name,"w") 
 file1.write(str(D1print)+str(' +- ')+str(perr1print)+str(' D1\n'))
 file1.write(str(p1)+str(' +- ')+str(perr1p)+str(' p1\n'))
